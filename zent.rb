@@ -10,26 +10,17 @@ class Message < Sequel::Model
   many_to_one :original_message, key: :original_message_id, class: self
   def to_json(options = nil)
     options ||= {}
-    methods = options[:methods]
-    options[:methods] = (
-      if Array === methods
-        methods
-      else
-        [methods].compact
-      end
-    )
+    options[:methods] = [options[:methods]].compact unless Array === options[:methods]
     options[:methods] << :original_message
     super(options)
   end
 end
 
 before do
+  response.headers["Access-Control-Allow-Origin"] = "*"
   if request.request_method == 'OPTIONS'
-    response.headers["Access-Control-Allow-Origin"] = "*"
-    response.headers["Access-Control-Allow-Methods"] = "POST,GET,PUT"
+    response.headers["Access-Control-Allow-Methods"] = "POST,GET,PATCH"
     halt 200
-  else
-    response.headers["Access-Control-Allow-Origin"] = "*"
   end
 end
 
@@ -46,18 +37,12 @@ helpers do
 end
 
 get '/' do
-  headers 'Content-Type' => 'text/json'
   json Message.all
 end
 
 post '/' do
-  attrs = params.delete('message')
-  message = Message.create(content: attrs.delete('content'))
-  original_message_id = attrs.delete('original_message_id').to_i
-  if original_message_id && original_message = Message.find(id: original_message_id)
-    message.original_message = original_message
-  end
-  status 422 unless message.save
+  content = params.keys.select { |k| String === k }.first
+  message = Message.create(content: content)
   json message
 end
 
@@ -75,6 +60,11 @@ get '/zen.txt' do
 end
 
 get '/:id' do
-  message = Message.find(id: params.delete('id'))
-  json message
+  json Message.find(id: params.delete('id'))
+end
+
+patch '/:id' do
+  original_message = Message.find(id: params.delete('id'))
+  content = params.keys.select { |k| String === k }.first
+  json Message.create(content: content, original_message_id: original_message.id)
 end

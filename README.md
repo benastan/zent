@@ -15,19 +15,7 @@ Get all thoughts
 
 Create a new thought.
 
-Required parameters: `content`
-Optional Parameters: `original_messsage_id`
-
-Sample request body:
-
-```
-{
-  "message": {
-    "content": "Hello, World",
-    "original_message_id": "1"
-  }
-}
-```
+Request body should be the content of the message.
 
 ### GET `/zen`
 
@@ -44,3 +32,7 @@ Redirects to a random thought.
 ### GET `/:id`
 
 Returns thought with id `:id`.
+
+### PATCH `/:id`
+
+Create a new thought, but set it to reference thought with id `:id`.

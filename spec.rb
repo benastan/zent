@@ -24,21 +24,30 @@ describe 'Zent' do
         its(:count) { should == Message.count }
       end
       context 'when HTTP verb is post' do
-        let(:_request) { post '/', message: attrs }
+        let(:_request) { post '/', attrs[:content] }
         specify do
           expect { subject }.to change(Message, :count).by(1)
         end
+        its(['content']) { should == attrs[:content] }
         its(['id']) { should be }
-        context 'when original_message_id is given' do
-          before { attrs[:original_message_id] = message.id }
-          specify { _request.should be_ok }
-          its(['original_message']) { should == JSON.parse(message.to_json) }
-        end
       end
     end
     describe '/:id' do
-      let(:_request) { get "/#{message.id}" }
-      its(['id']) { should == message.id }
+      context 'when HTTP verb is get' do
+        let(:_request) { get "/#{message.id}" }
+        its(['id']) { should == message.id }
+      end
+      context 'when HTTP verb is patch' do
+        before { message }
+        let(:message_content) { "Yo yo" }
+        let(:_request) { patch "/#{message.id}", message_content }
+        specify { _request.should be_ok }
+        it 'creates a new record' do
+          expect { subject }.to change(Message, :count).by(1)
+        end
+        its(['original_message_id']) { should == message.id }
+        its(['content']) { should == message_content }
+      end
     end
     describe '/zen' do
       before do

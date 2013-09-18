@@ -3,9 +3,9 @@ zent
 
 Anonymous thought stream.
 
-REST API Endpoint: http://zentapp.herokuapp.com
-JavaScript Client: https://github.com/benastan/zent-client
-Web UI: Coming soon!
+- REST API Endpoint: http://zentapp.herokuapp.com
+- JavaScript Client: https://github.com/benastan/zent-client
+- Web UI: Coming soon!
 
 ## Usage
 
